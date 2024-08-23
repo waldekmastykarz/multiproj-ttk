@@ -1,0 +1,13 @@
+# TeamsFx files
+env/.env.*.user
+.localConfigs
+appPackage/build
+
+# misc
+.env
+.deployment
+.DS_Store
+
+# Teams Toolkit
+build
+appPackage/build

@@ -1,0 +1,170 @@
+{
+  "version": "2.0.0",
+  "tasks": [
+    {
+      "label": "TTK",
+      "dependsOn": [
+        "TTK_GC",
+        "TTK_DC"
+      ],
+      "dependsOrder": "sequence"
+    },
+    {
+      "label": "TTK_DC",
+      "dependsOn": [
+        "Provision_DC"
+      ],
+      "dependsOrder": "sequence"
+    },
+    {
+      "label": "TTK_GC",
+      "dependsOn": [
+        "Install Dependencies",
+        "Start Azurite emulator",
+        "Provision_GC"
+      ],
+      "dependsOrder": "sequence"
+    },
+    {
+      "type": "shell",
+      "label": "Install Dependencies",
+      "command": "npm install --no-audit",
+      "options": {
+        "cwd": "${workspaceFolder}/gc"
+      }
+    },
+    {
+      "type": "shell",
+      "label": "Run watch",
+      "command": "npm run watch",
+      "options": {
+        "cwd": "${workspaceFolder}/gc"
+      },
+      "isBackground": true,
+      "problemMatcher": "$tsc-watch"
+    },
+    {
+      "label": "Start Azurite emulator",
+      "type": "shell",
+      "command": "npm run storage",
+      "isBackground": true,
+      "problemMatcher": {
+        "pattern": [
+          {
+            "regexp": "^.*$",
+            "file": 0,
+            "location": 1,
+            "message": 2
+          }
+        ],
+        "background": {
+          "activeOnStart": true,
+          "beginsPattern": "Azurite",
+          "endsPattern": "successfully listening"
+        }
+      },
+      "options": {
+        "cwd": "${workspaceFolder}/gc"
+      }
+    },
+    {
+      "label": "Provision_DC",
+      "type": "teamsfx",
+      "command": "provision",
+      "args": {
+        "env": "local"
+      },
+      "options": {
+        "cwd": "${workspaceFolder}/dc"
+      }
+    },
+    {
+      "label": "Provision_GC",
+      "type": "teamsfx",
+      "command": "provision",
+      "args": {
+        "env": "local"
+      },
+      "options": {
+        "cwd": "${workspaceFolder}/gc"
+      }
+    },
+    {
+      "label": "Terminate All Tasks",
+      "command": "echo ${input:terminate}",
+      "type": "shell",
+      "problemMatcher": []
+    },
+    {
+      "type": "func",
+      "label": "func: host start",
+      "command": "host start",
+      "problemMatcher": "$func-node-watch",
+      "isBackground": true,
+      "dependsOn": "npm watch (functions)",
+      "options": {
+        "cwd": "${workspaceFolder}/gc"
+      }
+    },
+    {
+      "type": "shell",
+      "label": "npm build (functions)",
+      "command": "npm run build",
+      "dependsOn": "npm clean (functions)",
+      "problemMatcher": "$tsc",
+      "options": {
+        "cwd": "${workspaceFolder}/gc"
+      }
+    },
+    {
+      "type": "shell",
+      "label": "npm watch (functions)",
+      "command": "npm run watch",
+      "dependsOn": "npm clean (functions)",
+      "problemMatcher": "$tsc-watch",
+      "group": {
+        "kind": "build",
+        "isDefault": true
+      },
+      "isBackground": true,
+      "options": {
+        "cwd": "${workspaceFolder}/gc"
+      }
+    },
+    {
+      "type": "shell",
+      "label": "npm install (functions)",
+      "command": "npm install",
+      "options": {
+        "cwd": "${workspaceFolder}/gc"
+      }
+    },
+    {
+      "type": "shell",
+      "label": "npm prune (functions)",
+      "command": "npm prune --production",
+      "dependsOn": "npm build (functions)",
+      "problemMatcher": [],
+      "options": {
+        "cwd": "${workspaceFolder}/gc"
+      }
+    },
+    {
+      "type": "shell",
+      "label": "npm clean (functions)",
+      "command": "npm run clean",
+      "dependsOn": "npm install (functions)",
+      "options": {
+        "cwd": "${workspaceFolder}/gc"
+      }
+    }
+  ],
+  "inputs": [
+    {
+      "id": "terminate",
+      "type": "command",
+      "command": "workbench.action.tasks.terminate",
+      "args": "terminateAll"
+    }
+  ]
+}
